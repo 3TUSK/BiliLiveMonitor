@@ -20,12 +20,12 @@ public interface Danmaku extends Comparable<Danmaku>, Supplier<String> {
 	/**
 	 * This method return a time stamp for a <code>danmaku</code> instance
 	 * for comparator. There is no convention of definition of "time stamp"
-	 * for a <code>danmaku</code> instance; it can be the time of this
-	 * Java object is created, or the time when danmaku is received, or even
-	 * the time when it was sent by user using any type of interface.<br>
-	 * No matter what type of time stamp was returned, it must promise that,
-	 * a collection of danmakus can be sorted by time, i.e. the return value
-	 * of this function.
+	 * for a {@code danmaku} instance; it can be the time of this danmaku
+	 * object is created, or the time when danmaku is received, or even
+	 * the time when it was sent by user using any type of web interface.<br>
+	 * No matter what type of time stamp was returned, implementation must 
+	 * promise that, a collection of danmakus can be sorted by time, i.e. 
+	 * the return value of this function.
 	 * @return The time stamp of this Danmaku.
 	 * @see java.lang.Comparable
 	 */
