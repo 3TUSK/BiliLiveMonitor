@@ -22,8 +22,8 @@ public class BiliStreamMod {
 	@Mod.EventHandler
 	public void onLoad(FMLInitializationEvent event) {
 		new PlayerMonitor();
-		Thread t = new Thread(new BiliLiveMonitor());
-		t.start();
+//		Thread t = new Thread(new BiliLiveMonitor());
+//		t.start();
 	}
 
 
