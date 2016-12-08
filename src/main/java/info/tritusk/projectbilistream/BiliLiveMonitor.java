@@ -5,8 +5,6 @@ import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.RandomUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -24,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@SideOnly(Side.CLIENT)
 public class BiliLiveMonitor implements Runnable {
 	private DataOutputStream dataOutputStream;
 
