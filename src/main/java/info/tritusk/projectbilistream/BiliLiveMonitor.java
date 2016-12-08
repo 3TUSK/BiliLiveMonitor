@@ -30,18 +30,16 @@ public class BiliLiveMonitor implements Runnable {
 
 	private static Gson gson = new Gson();
 
-	private void SendHeartBeat() {
-		SendSocketData(2, "");
+	private void sendHeartBeat() {
+		sendSocketData(2, "");
 	}
 
-	private void SendJoinMsg() {
-		String roomId = "23058";
-//		String roomId = "5279";
-		long ClientId = RandomUtils.nextLong(100000000000000L, 300000000000000L);
-		SendSocketData(7, String.format("{\"roomid\":%s,\"uid\":%d}", roomId, ClientId));
+	private void sendJoinMsg() {
+		long clientId = RandomUtils.nextLong(100000000000000L, 300000000000000L);
+		sendSocketData(7, String.format("{\"roomid\":%s,\"uid\":%d}", ModSettings.liveRoom, clientId));
 	}
 
-	private void SendSocketData(int action, String body) {
+	private void sendSocketData(int action, String body) {
 		try {
 			byte[] bodyBytes = body.getBytes("UTF-8");
 			int length = bodyBytes.length + 16;
@@ -62,9 +60,11 @@ public class BiliLiveMonitor implements Runnable {
 	public void run() {
 		try {
 			InputStream result = new URL("http://live.bilibili.com/api/player?id=cid:" + ModSettings.liveRoom).openConnection().getInputStream();
+			result.available(); //This is magic: without this call, result.read cannot give full result?!
 			byte[] bytes = new byte[2048];
 			result.read(bytes);
 			String rawInputAsString = "<root>" + new String(bytes, "UTF-8") + "</root>";
+			rawInputAsString = rawInputAsString.replaceAll("[\u0000\u0014]", ""); //Get rid of invalid xml char. Not sure about the origin. Remove this replaceAll call when it is unnecessary.
 			InputStream wrappedInput = new ByteArrayInputStream(rawInputAsString.getBytes("UTF-8"));
 			Document parsedResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(wrappedInput);
 			String danmakuServer = parsedResult.getDocumentElement().getElementsByTagName("server").item(0).getTextContent();
@@ -72,12 +72,12 @@ public class BiliLiveMonitor implements Runnable {
 			dataOutputStream = new DataOutputStream(socket.getOutputStream());
 //			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			InputStream inputStream = socket.getInputStream();
-			SendJoinMsg();
+			sendJoinMsg();
 			Timer t = new Timer();
 			t.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					SendHeartBeat();
+					sendHeartBeat();
 					System.out.println("sent heartbeat");
 				}
 			}, 30000, 30000);
