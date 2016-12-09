@@ -14,15 +14,16 @@ public class Command extends CommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/bililivejoin url id";
+		return "/bililivejoin <url id>";
 	}
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		BiliStreamMod.t.stop();
+		BiliLiveMonitor.keepRunning = false;
 		while (BiliStreamMod.t.isAlive()) {
 		}
 		BiliStreamMod.t = new Thread(new BiliLiveMonitor(args[0]));
+		BiliLiveMonitor.keepRunning = true;
 		BiliStreamMod.t.start();
 	}
 }

@@ -29,11 +29,13 @@ public class BiliLiveMonitor implements Runnable {
 	private String roomId;
 	private String cmtAddr;
 	private DataOutputStream dataOutputStream;
+	
+	// A signal. Set to false will cause BiliLiveMonitor stop running, and thus make a thread dead.
+	static volatile boolean keepRunning = true;
 
 	private static Gson gson = new Gson();
 	private static Pattern extractRoomId = Pattern.compile("ROOMID\\s=\\s(\\d+)");
 	private static Pattern extractCmtAddr = Pattern.compile("<server>(.*)</server>");
-
 
 	BiliLiveMonitor(String roomUrlId) {
 		this.roomUrlId = roomUrlId;
@@ -77,7 +79,6 @@ public class BiliLiveMonitor implements Runnable {
 			} else {
 				FMLLog.log(MODID, Level.FATAL, "can not get room id");
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -93,9 +94,8 @@ public class BiliLiveMonitor implements Runnable {
 			if (matcher.find()) {
 				cmtAddr = matcher.group(1);
 			} else {
-				FMLLog.log(MODID, Level.FATAL, "can not get cmt addr");
+				FMLLog.log(MODID, Level.FATAL, "can not get comments server address");
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -118,7 +118,7 @@ public class BiliLiveMonitor implements Runnable {
 					System.out.println("sent heartbeat");
 				}
 			}, 30000, 30000);
-			while (true) {
+			while (keepRunning) {
 				try {
 					byte[] buf = new byte[16];
 					inputStream.read(buf);
@@ -132,7 +132,7 @@ public class BiliLiveMonitor implements Runnable {
 						inputStream.read(bodyByte);
 						String bodyString = new String(bodyByte, "UTF-8");
 						Object o = gson.fromJson(bodyString, Object.class);
-						LinkedTreeMap jsonMap = (LinkedTreeMap) o;
+						LinkedTreeMap jsonMap = (LinkedTreeMap) o; // TODO: Sometimes o is a String. Weird. Perhaps a TypeAdapter is necessary
 						String msgType = (String) jsonMap.get("cmd");
 						if (msgType.equals("DANMU_MSG")) {
 							ArrayList infoList = (ArrayList) jsonMap.get("info");
@@ -150,9 +150,11 @@ public class BiliLiveMonitor implements Runnable {
 					e.printStackTrace();
 				}
 			}
+			socket.close(); // This will be reached when monitor close signal occurs
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 
 }
