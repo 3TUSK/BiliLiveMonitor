@@ -1,5 +1,6 @@
 package info.tritusk.projectbilistream;
 
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
@@ -7,7 +8,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 public class BiliStreamMod {
 	static final String MODID = "bilistreammod";
 	static final String NAME = "BiliStreamMod";
-
+	static Thread t;
 	@Mod.Instance(MODID)
 	private static BiliStreamMod INSTANCE;
 
@@ -19,7 +20,9 @@ public class BiliStreamMod {
 	@Mod.EventHandler
 	public void onLoad(FMLInitializationEvent event) {
 		new PlayerMonitor();
-		Thread t = new Thread(new BiliLiveMonitor());
+		ClientCommandHandler.instance.registerCommand(new Command());
+
+		t = new Thread(new BiliLiveMonitor(Integer.toString(ModSettings.liveRoom)));
 		t.start();
 	}
 

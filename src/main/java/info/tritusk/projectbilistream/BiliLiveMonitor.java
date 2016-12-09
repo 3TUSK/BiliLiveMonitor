@@ -1,17 +1,15 @@
 package info.tritusk.projectbilistream;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.fml.common.FMLLog;
 import org.apache.commons.lang3.RandomUtils;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import org.apache.logging.log4j.Level;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,11 +19,25 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static info.tritusk.projectbilistream.BiliStreamMod.MODID;
 
 public class BiliLiveMonitor implements Runnable {
+	private String roomUrlId;
+	private String roomId;
+	private String cmtAddr;
 	private DataOutputStream dataOutputStream;
 
 	private static Gson gson = new Gson();
+	private static Pattern extractRoomId = Pattern.compile("ROOMID\\s=\\s(\\d+)");
+	private static Pattern extractCmtAddr = Pattern.compile("<server>(.*)</server>");
+
+
+	BiliLiveMonitor(String roomUrlId) {
+		this.roomUrlId = roomUrlId;
+	}
 
 	private void sendHeartBeat() {
 		sendSocketData(2, "");
@@ -33,7 +45,7 @@ public class BiliLiveMonitor implements Runnable {
 
 	private void sendJoinMsg() {
 		long clientId = RandomUtils.nextLong(100000000000000L, 300000000000000L);
-		sendSocketData(7, String.format("{\"roomid\":%s,\"uid\":%d}", ModSettings.liveRoom, clientId));
+		sendSocketData(7, String.format("{\"roomid\":%s,\"uid\":%d}", roomId, clientId));
 	}
 
 	private void sendSocketData(int action, String body) {
@@ -53,21 +65,49 @@ public class BiliLiveMonitor implements Runnable {
 		}
 	}
 
+	private void getRoomId() {
+		try {
+			URL url = new URL("http://live.bilibili.com/" + roomUrlId);
+			InputStream con = url.openStream();
+			String data = new String(ByteStreams.toByteArray(con), "UTF-8");
+			con.close();
+			Matcher matcher = extractRoomId.matcher(data);
+			if (matcher.find()) {
+				roomId = matcher.group(1);
+			} else {
+				FMLLog.log(MODID, Level.FATAL, "can not get room id");
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void getCmtServer() {
+		try {
+			URL url = new URL("http://live.bilibili.com/api/player?id=cid:" + roomId);
+			InputStream con = url.openStream();
+			String data = new String(ByteStreams.toByteArray(con), "UTF-8");
+			con.close();
+			Matcher matcher = extractCmtAddr.matcher(data);
+			if (matcher.find()) {
+				cmtAddr = matcher.group(1);
+			} else {
+				FMLLog.log(MODID, Level.FATAL, "can not get cmt addr");
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	public void run() {
 		try {
-			InputStream result = new URL("http://live.bilibili.com/api/player?id=cid:" + ModSettings.liveRoom).openConnection().getInputStream();
-			result.available(); //This is magic: without this call, result.read cannot give full result?!
-			byte[] bytes = new byte[2048];
-			result.read(bytes);
-			String rawInputAsString = "<root>" + new String(bytes, "UTF-8") + "</root>";
-			rawInputAsString = rawInputAsString.replaceAll("[\u0000\u0014]", ""); //Get rid of invalid xml char. Not sure about the origin. Remove this replaceAll call when it is unnecessary.
-			InputStream wrappedInput = new ByteArrayInputStream(rawInputAsString.getBytes("UTF-8"));
-			Document parsedResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(wrappedInput);
-			String danmakuServer = parsedResult.getDocumentElement().getElementsByTagName("server").item(0).getTextContent();
-			Socket socket = new Socket(danmakuServer, 788);
+			getRoomId();
+			getCmtServer();
+			Socket socket = new Socket(cmtAddr, 788);
 			dataOutputStream = new DataOutputStream(socket.getOutputStream());
-//			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			InputStream inputStream = socket.getInputStream();
 			sendJoinMsg();
 			Timer t = new Timer();
@@ -104,14 +144,13 @@ public class BiliLiveMonitor implements Runnable {
 										"[Bilibili] " + user + ": " + danmuMsg));
 							}
 
-//							System.out.println(user + ": " + danmuMsg);
 						}
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-		} catch (IOException | ParserConfigurationException | SAXException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
