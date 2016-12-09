@@ -12,11 +12,6 @@ public class BiliStreamMod {
 	@Mod.Instance(MODID)
 	private static BiliStreamMod INSTANCE;
 
-	@Mod.InstanceFactory
-	public BiliStreamMod getInstance() {
-		return INSTANCE;
-	}
-
 	@Mod.EventHandler
 	public void onLoad(FMLInitializationEvent event) {
 		new PlayerMonitor();
