@@ -10,7 +10,7 @@ public class BiliStreamMod {
 	static final String NAME = "BiliStreamMod";
 	static Thread t;
 	@Mod.Instance(MODID)
-	private static BiliStreamMod INSTANCE;
+	public static BiliStreamMod INSTANCE;
 
 	@Mod.EventHandler
 	public void onLoad(FMLInitializationEvent event) {
