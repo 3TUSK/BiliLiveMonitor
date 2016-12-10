@@ -16,9 +16,13 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "0.0.0.0"
+version = "0.0.0"
 group = "info.tritusk.projectbilistream"
 archivesBaseName = "BiliLiveMonitor"
+
+if (System.getenv().BUILD_NUMBER != null) {
+    version += "." + System.getenv().BUILD_NUMBER
+}
 
 minecraft {
     version = "1.10.2-12.18.2.2179"
@@ -26,8 +30,6 @@ minecraft {
 
     mappings = "snapshot_20161111"
 }
-
-dependencies {}
 
 processResources {
     // this will ensure that this task is redone when the versions change.
@@ -47,4 +49,3 @@ processResources {
         exclude 'mcmod.info'
     }
 }
-
