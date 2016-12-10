@@ -110,8 +110,8 @@ public class BiliLiveMonitor implements Runnable {
 			dataOutputStream = new DataOutputStream(socket.getOutputStream());
 			InputStream inputStream = socket.getInputStream();
 			sendJoinMsg();
-			Timer t = new Timer();
-			t.scheduleAtFixedRate(new TimerTask() {
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
 					sendHeartBeat();
@@ -151,6 +151,7 @@ public class BiliLiveMonitor implements Runnable {
 				}
 			}
 			socket.close(); // This will be reached when monitor close signal occurs
+			timer.cancel(); // This gets same treatment
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
