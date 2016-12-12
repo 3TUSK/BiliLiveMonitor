@@ -12,10 +12,6 @@ public enum DanmakuManager {
 	
 	final Queue<Danmaku> danmakuQueue = new ConcurrentLinkedQueue<>();
 	
-	public Danmaku createNew(@Nonnull String content) {
-		throw new UnsupportedOperationException(); // yes i am kidding everyone
-	}
-	
 	public boolean push(@Nonnull Danmaku danmaku) {
 		return this.danmakuQueue.offer(danmaku);
 	}
