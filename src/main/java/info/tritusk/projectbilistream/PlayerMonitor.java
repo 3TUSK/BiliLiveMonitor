@@ -31,7 +31,7 @@ public final class PlayerMonitor {
 	
 	@SubscribeEvent
 	public void onTickingPlayer(TickEvent.PlayerTickEvent event) {
-		if (isAvailable) {
+		if (event.phase == TickEvent.Phase.END && isAvailable) {
 			tick++;
 			if (tick >= refreshRate) {
 				tick = 0;
