@@ -16,6 +16,11 @@ public class Command extends CommandBase {
 	public String getCommandUsage(ICommandSender sender) {
 		return "/bililivejoin <url id>";
 	}
+	
+	@Override
+	public int getRequiredPermissionLevel() {
+		return 0; //Anyone can use it
+	}
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
