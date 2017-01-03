@@ -14,7 +14,7 @@ public class BiliStreamMod {
 
 	@Mod.EventHandler
 	public void onLoad(FMLInitializationEvent event) {
-		new PlayerMonitor();
+		//new PlayerMonitor(); //Because that receives TickEvent. Should be off for now so that we could save cpu a bit
 		ClientCommandHandler.instance.registerCommand(new Command());
 
 		t = new Thread(new BiliLiveMonitor(Integer.toString(ModSettings.liveRoom)));
