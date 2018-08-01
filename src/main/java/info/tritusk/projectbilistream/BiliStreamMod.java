@@ -1,6 +1,7 @@
 package info.tritusk.projectbilistream;
 
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
@@ -16,9 +17,11 @@ public class BiliStreamMod {
 	public void onLoad(FMLInitializationEvent event) {
 		//new PlayerMonitor(); //Because that receives TickEvent. Should be off for now so that we could save cpu a bit
 		ClientCommandHandler.instance.registerCommand(new Command());
+		MinecraftForge.EVENT_BUS.register(new Overlay());
 
-		t = new Thread(new BiliLiveMonitor(Integer.toString(ModSettings.liveRoom)));
-		t.start();
+		if (ModSettings.liveRoom != 0) {
+			t = new Thread(new BiliLiveMonitor(Integer.toString(ModSettings.liveRoom)));
+			t.start();
+		}
 	}
-
 }
