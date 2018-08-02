@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * @author Charlie Jiang
- * @since rv1
+ * @since 0.0.1
  */
 public class Overlay {
     public static volatile boolean show = false;
