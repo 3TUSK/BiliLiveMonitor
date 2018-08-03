@@ -8,13 +8,13 @@ import net.minecraft.server.MinecraftServer;
 public class Command extends CommandBase {
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "bililivejoin";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender sender) {
-		return "/bililivejoin <url id>";
+	public String getUsage(ICommandSender sender) {
+		return "/bililivejoin <roomid>";
 	}
 	
 	@Override
@@ -24,11 +24,7 @@ public class Command extends CommandBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		BiliLiveMonitor.keepRunning = false;
-		while (BiliStreamMod.t.isAlive()) {
-		}
 		BiliStreamMod.t = new Thread(new BiliLiveMonitor(args[0]));
-		BiliLiveMonitor.keepRunning = true;
 		BiliStreamMod.t.start();
 	}
 }

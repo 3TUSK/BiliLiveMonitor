@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
 
@@ -16,7 +16,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "0.0.0"
+version = "0.0.1"
 group = "info.tritusk.projectbilistream"
 archivesBaseName = "BiliLiveMonitor"
 
@@ -25,10 +25,15 @@ if (System.getenv().BUILD_NUMBER != null) {
 }
 
 minecraft {
-    version = "1.10.2-12.18.2.2179"
+    version = "1.12.2-14.23.4.2739"
     runDir = "run"
 
-    mappings = "snapshot_20161111"
+    mappings = "snapshot_20180726"
+}
+
+configurations {
+    embed
+    compile.extendsFrom(embed)
 }
 
 processResources {
@@ -48,4 +53,15 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+dependencies {
+    embed ('com.github.cqjjjzr:charlie.bililivelib:rv4')
+}
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+jar {
+    from configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
 }

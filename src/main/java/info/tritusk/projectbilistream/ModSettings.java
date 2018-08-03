@@ -9,5 +9,4 @@ public final class ModSettings {
 	@Config.LangKey("config.bilistream.liveroom")
 	@Config.RangeInt(min = 0)
 	public static int liveRoom = 0;
-
 }
